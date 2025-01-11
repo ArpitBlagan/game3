@@ -1,20 +1,19 @@
 #![allow(clippy::result_large_err)]
 
 use anchor_lang::prelude::*;
-declare_id!("coUnmi3oBUtwtd9fjeAvSsJssXh5A5xyPbhpewyzRVF");
+declare_id!("DEjo3Tdg9vsXKY4CHv97WWXEPAFzHRMe6Z8BgczX6moB");
 
 #[program]
 pub mod game3 {
     use super::*;
     pub fn createChallenge(ctx:Context<CreateChallenge>,name:String, descritpion:String,
-      entry_fee:u32,token_type:String)->Result<()>{
+      entry_fee:u32)->Result<()>{
         //Logic here
         let challenge=& mut ctx.accounts.challenge_account;
         challenge.owner=ctx.accounts.payer.key();
         challenge.name=name;
         challenge.descritpion=descritpion;
         challenge.entry_fee=entry_fee;
-        challenge.token_type=token_type;
         Ok(())
     }
     //Pending ??

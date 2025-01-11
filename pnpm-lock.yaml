@@ -38,6 +38,9 @@ importers:
       '@tanstack/react-query-next-experimental':
         specifier: ^5.51.11
         version: 5.51.11(@tanstack/react-query@5.51.11(react@18.3.1))(next@14.2.5(@babel/core@7.24.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      bigint-buffer:
+        specifier: ^1.1.5
+        version: 1.1.5
       daisyui:
         specifier: ^4.12.10
         version: 4.12.10(postcss@8.4.39)

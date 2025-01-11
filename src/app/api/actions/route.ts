@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       actions: [
         {
           label: "Create",
-          href: "http://localhost:3000/api/actions?type=create&name={name}&amount={amount}&description={description}",
+          href: "http://localhost:3000/api/actions?name={name}&amount={amount}&description={description}",
           type: "transaction",
           parameters: [
             {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
               name: "name",
               label: "Name the challenge",
             },
-            { name: "descriptino", label: "Challenge description" },
+            { name: "description", label: "Challenge description" },
           ],
         },
       ],
@@ -52,41 +52,41 @@ export async function POST(request: Request) {
   const url = new URL(request.url);
   const name = url.searchParams.get("name");
   const description = url.searchParams.get("description");
-  const amount = url.searchParams.get("amount");
+  const amount = Number(url.searchParams.get("amount"));
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   const body: ActionPostRequest = await request.json();
-  let user;
+  console.log("hitting");
   try {
-    user = new PublicKey(body.account);
+    let user = new PublicKey(body.account);
+    const program: Program<Game3> = new Program(IDL, { connection });
+    const instruction = await program.methods
+      .createChallenge("Hello", "description", 1)
+      .accounts({
+        payer: user,
+      })
+      .instruction();
+
+    const blockhash = await connection.getLatestBlockhash();
+
+    const transaction = new Transaction({
+      feePayer: user,
+      blockhash: blockhash.blockhash,
+      lastValidBlockHeight: blockhash.lastValidBlockHeight,
+    }).add(instruction);
+
+    const response = await createPostResponse({
+      fields: {
+        transaction: transaction,
+        type: "transaction",
+      },
+    });
+    console.log(response);
+    return Response.json({ heelo: "adf" }, { headers: ACTIONS_CORS_HEADERS });
   } catch (err) {
+    console.log("error", err);
     return Response.json(
       { message: "Not a valid account" },
       { headers: ACTIONS_CORS_HEADERS }
     );
   }
-  const program: Program<Game3> = new Program(IDL, { connection });
-  const instruction = await program.methods
-    //@ts-ignore
-    .createChallenge(name, description, amount, "")
-    .accounts({
-      payer: user,
-    })
-    .instruction();
-
-  const blockhash = await connection.getLatestBlockhash();
-
-  const transaction = new Transaction({
-    feePayer: user,
-    blockhash: blockhash.blockhash,
-    lastValidBlockHeight: blockhash.lastValidBlockHeight,
-  }).add(instruction);
-
-  const response = await createPostResponse({
-    fields: {
-      transaction: transaction,
-      type: "transaction",
-    },
-  });
-
-  return Response.json(response, { headers: ACTIONS_CORS_HEADERS });
 }

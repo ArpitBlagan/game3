@@ -1,5 +1,5 @@
 {
-  "address": "coUnmi3oBUtwtd9fjeAvSsJssXh5A5xyPbhpewyzRVF",
+  "address": "DEjo3Tdg9vsXKY4CHv97WWXEPAFzHRMe6Z8BgczX6moB",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -68,10 +68,6 @@
         {
           "name": "entry_fee",
           "type": "u32"
-        },
-        {
-          "name": "token_type",
-          "type": "string"
         }
       ]
     },
@@ -416,10 +412,6 @@
           {
             "name": "entry_fee",
             "type": "u32"
-          },
-          {
-            "name": "token_type",
-            "type": "string"
           },
           {
             "name": "start_at",
