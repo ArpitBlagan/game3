@@ -177,8 +177,6 @@ pub struct Challenge {
   #[max_len(70)]
   pub descritpion:String,
   pub entry_fee:u32,
-  #[max_len(15)]
-  pub token_type:String,
   pub start_at:Option<u32>,
   pub end_at:Option<u32>,
   pub participant1: Option<Pubkey>,
