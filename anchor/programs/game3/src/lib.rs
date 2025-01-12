@@ -10,10 +10,13 @@ pub mod game3 {
       entry_fee:u32)->Result<()>{
         //Logic here
         let challenge=& mut ctx.accounts.challenge_account;
+        let challenge_id_account=& mut ctx.accounts.challenge_id_account;
         challenge.owner=ctx.accounts.payer.key();
         challenge.name=name;
         challenge.descritpion=descritpion;
         challenge.entry_fee=entry_fee;
+        challenge_id_account.challenge_id=challenge_id;
+        challenge_id_account.challenge_key=challenge.key()
         Ok(())
     }
     //Pending ??
@@ -66,6 +69,12 @@ pub mod game3 {
       }
       Ok(())
     }
+    pub fn initializeChallengeState(ctx:Context<CreateChallengeIdState>)->Result<()>{
+      let id_state_account=ctx.accounts.global_state;
+      id_state_account.id=0;
+      id
+    }
+
     pub fn delete_participant(ctx:Context<DeleteParticipant>,participant_id:u32)->Result<()>{
        //Logic here
        msg!("Participant is deleted successfully :)");
@@ -90,6 +99,12 @@ pub struct CreateChallenge<'info>{
     bump
   )]
   pub challenge_account:Account<'info,Challenge>,
+  #[account(
+    mut,
+    seeds=[b"global_state".as_ref()],
+    bump
+  )]
+  pub challenge_id_account:Account<'info,ChallengeIdState>
   #[account(mut)]
   pub payer :Signer<'info>,
   pub system_program:Program<'info,System>
@@ -167,6 +182,21 @@ pub struct FinishChallenge<'info>{
   pub system_program:Program<'info,System>
 }
 
+#[derive(Accounts)]
+pub struct CreateChallengeIdState<'info>{
+  #[account(
+    init,
+    payer = initializer,
+    space = 8 + ChallengeIdState::INIT_SPACE,
+    seeds = [b"global-state"],
+    bump,
+  )]  
+  pub global_state: Account<'info, GlobalState>,
+  #[account(mut)]
+  pub payer: Signer<'info>,
+  pub system_program: Program<'info, System>,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct Challenge {
@@ -192,8 +222,16 @@ pub struct Participant{
   pub losses:u32,
   pub player_id:u32,
 }
+
+#[account]
+#[derive(InitSpace)]
+pub struct ChallengeIdState{
+  pub challenge_id: u32,
+  pub challenge_key :Pubkey
+}
 #[error_code]
 pub enum ErrorCode {
     #[msg("The challenge already has two participants.")]
     ParticipantLimitExceeded,
 }
+

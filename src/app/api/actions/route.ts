@@ -90,17 +90,21 @@ export async function POST(request: Request) {
     let user = new PublicKey(body.account);
     console.log("user", user);
     const program: Program<Game3> = new Program(IDL, { connection });
-    let challengeId = 18;
+    let challengeId = 0;
     // const challengeAccount = await program.account.challenge.fetch(
     //   new PublicKey(
-    //     await PublicKey.createWithSeed(
-    //       user,
-    //       `challenge${challengeId}`,
+    //     PublicKey.findProgramAddressSync(
+    //       seeds, ["global_state"],
     //       program.programId
     //     )
     //   )
     // );
-
+    // if (!challengeAccount){
+    //   program.methods.inititalize
+    // }
+    // else{
+    //   challengeId=challengeAccount.id+1;
+    // }
     const instruction = await program.methods
       .createChallenge(challengeId, name, description, amount)
       .accounts({
