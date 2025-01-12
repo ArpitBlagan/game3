@@ -1,12 +1,12 @@
 #![allow(clippy::result_large_err)]
 
 use anchor_lang::prelude::*;
-declare_id!("DEjo3Tdg9vsXKY4CHv97WWXEPAFzHRMe6Z8BgczX6moB");
+declare_id!("3Va55vbKQykVmREaXnYiwQeSa3Dk1hvWUqwmS9DAaxgj");
 
 #[program]
 pub mod game3 {
     use super::*;
-    pub fn createChallenge(ctx:Context<CreateChallenge>,name:String, descritpion:String,
+    pub fn createChallenge(ctx:Context<CreateChallenge>,challenge_id:u32,name:String, descritpion:String,
       entry_fee:u32)->Result<()>{
         //Logic here
         let challenge=& mut ctx.accounts.challenge_account;
@@ -17,7 +17,7 @@ pub mod game3 {
         Ok(())
     }
     //Pending ??
-    pub fn createParticipant(ctx:Context<CreateParticipant>,user_name:String,player_id:u32)->Result<()>{
+    pub fn createParticipant(ctx:Context<CreateParticipant>,challenge_id:u32,user_name:String,player_id:u32)->Result<()>{
       let challenge=&mut ctx.accounts.challenge_account;
       let participant_account=& mut ctx.accounts.participant_account;
       if challenge.participant1.is_some() && challenge.participant2.is_some() {
@@ -51,8 +51,8 @@ pub mod game3 {
       
       Ok(())
     }
-    pub fn updateParticipantInfo(ctx:Context<UpdateStats>,_player_id:String,
-      _user_name:String,typee:String)->Result<()>{
+    pub fn updateParticipantInfo(ctx:Context<UpdateStats>,player_id:String,
+      user_name:String,typee:String)->Result<()>{
       //Logic here  
       let participant_account=&mut ctx.accounts.participant_account;
       if typee=="win"{

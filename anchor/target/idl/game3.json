@@ -1,5 +1,5 @@
 {
-  "address": "DEjo3Tdg9vsXKY4CHv97WWXEPAFzHRMe6Z8BgczX6moB",
+  "address": "3Va55vbKQykVmREaXnYiwQeSa3Dk1hvWUqwmS9DAaxgj",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -57,6 +57,10 @@
         }
       ],
       "args": [
+        {
+          "name": "challenge_id",
+          "type": "u32"
+        },
         {
           "name": "name",
           "type": "string"
@@ -157,6 +161,10 @@
         }
       ],
       "args": [
+        {
+          "name": "challenge_id",
+          "type": "u32"
+        },
         {
           "name": "user_name",
           "type": "string"
@@ -342,11 +350,11 @@
       ],
       "args": [
         {
-          "name": "_player_id",
+          "name": "player_id",
           "type": "string"
         },
         {
-          "name": "_user_name",
+          "name": "user_name",
           "type": "string"
         },
         {
