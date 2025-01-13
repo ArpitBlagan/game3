@@ -1,5 +1,5 @@
 {
-  "address": "3Va55vbKQykVmREaXnYiwQeSa3Dk1hvWUqwmS9DAaxgj",
+  "address": "2fRVVSBJAMuk49GbzzAq2iNoASFS85KkUx48CVGjk32u",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -42,6 +42,31 @@
               {
                 "kind": "arg",
                 "path": "challenge_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  45,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
               }
             ]
           }
@@ -294,6 +319,56 @@
       ]
     },
     {
+      "name": "initializeChallengeState",
+      "discriminator": [
+        97,
+        70,
+        51,
+        142,
+        67,
+        4,
+        26,
+        239
+      ],
+      "accounts": [
+        {
+          "name": "global_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  45,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "updateParticipantInfo",
       "discriminator": [
         83,
@@ -379,6 +454,19 @@
       ]
     },
     {
+      "name": "GlobalState",
+      "discriminator": [
+        163,
+        46,
+        74,
+        168,
+        216,
+        123,
+        133,
+        98
+      ]
+    },
+    {
       "name": "Participant",
       "discriminator": [
         32,
@@ -441,6 +529,24 @@
           },
           {
             "name": "participant2",
+            "type": {
+              "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GlobalState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "challenge_id",
+            "type": "u32"
+          },
+          {
+            "name": "challenge_key",
             "type": {
               "option": "pubkey"
             }

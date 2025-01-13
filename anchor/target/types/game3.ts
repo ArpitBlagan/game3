@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/game3.json`.
  */
 export type Game3 = {
-  "address": "3Va55vbKQykVmREaXnYiwQeSa3Dk1hvWUqwmS9DAaxgj",
+  "address": "2fRVVSBJAMuk49GbzzAq2iNoASFS85KkUx48CVGjk32u",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -48,6 +48,31 @@ export type Game3 = {
               {
                 "kind": "arg",
                 "path": "challengeId"
+              }
+            ]
+          }
+        },
+        {
+          "name": "globalState",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  45,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
               }
             ]
           }
@@ -300,6 +325,56 @@ export type Game3 = {
       ]
     },
     {
+      "name": "initializeChallengeState",
+      "discriminator": [
+        97,
+        70,
+        51,
+        142,
+        67,
+        4,
+        26,
+        239
+      ],
+      "accounts": [
+        {
+          "name": "globalState",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  45,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "updateParticipantInfo",
       "discriminator": [
         83,
@@ -385,6 +460,19 @@ export type Game3 = {
       ]
     },
     {
+      "name": "globalState",
+      "discriminator": [
+        163,
+        46,
+        74,
+        168,
+        216,
+        123,
+        133,
+        98
+      ]
+    },
+    {
       "name": "participant",
       "discriminator": [
         32,
@@ -447,6 +535,24 @@ export type Game3 = {
           },
           {
             "name": "participant2",
+            "type": {
+              "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "globalState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "challengeId",
+            "type": "u32"
+          },
+          {
+            "name": "challengeKey",
             "type": {
               "option": "pubkey"
             }
