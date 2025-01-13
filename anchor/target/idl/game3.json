@@ -1,5 +1,5 @@
 {
-  "address": "2fRVVSBJAMuk49GbzzAq2iNoASFS85KkUx48CVGjk32u",
+  "address": "5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -168,10 +168,6 @@
                   103,
                   101
                 ]
-              },
-              {
-                "kind": "account",
-                "path": "payer"
               },
               {
                 "kind": "arg",
@@ -387,6 +383,32 @@
           "signer": true
         },
         {
+          "name": "challenge_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  108,
+                  108,
+                  101,
+                  110,
+                  103,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "challenge_id"
+              }
+            ]
+          }
+        },
+        {
           "name": "participant_account",
           "writable": true,
           "pda": {
@@ -424,6 +446,10 @@
         }
       ],
       "args": [
+        {
+          "name": "challenge_id",
+          "type": "u32"
+        },
         {
           "name": "player_id",
           "type": "string"
@@ -519,6 +545,18 @@
             "name": "end_at",
             "type": {
               "option": "u32"
+            }
+          },
+          {
+            "name": "winner",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "option": "string"
             }
           },
           {

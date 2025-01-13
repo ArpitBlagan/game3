@@ -16,7 +16,7 @@ import {
 } from "@solana/web3.js";
 const IDL = require("../../../../anchor/target/idl/game3.json");
 export const OPTIONS = GET;
-import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
 import { Game3 } from "../../../../anchor/target/types/game3";
 
 export async function GET(request: Request) {
@@ -45,8 +45,10 @@ export async function GET(request: Request) {
               name: "name",
               label: "Name the challenge",
             },
-            { name: "description", label: "Challenge description" },
-
+            {
+              name: "description",
+              label: "Challenge description",
+            },
             {
               name: "amount",
               label: "Entry sol amount",
@@ -80,7 +82,7 @@ export async function POST(request: Request) {
       },
       {
         headers: ACTIONS_CORS_HEADERS,
-        status: 500,
+        status: 403,
       }
     );
   }
@@ -162,7 +164,7 @@ export async function POST(request: Request) {
         transaction: transaction,
         type: "transaction",
         message:
-          "Transaction created successfully :). Now you and friend can participate using this url:http://localhost:3000//api/participate",
+          "Transaction created successfully :). Now you and friend can participate.",
         links: {
           next: {
             type: "inline",
@@ -172,7 +174,8 @@ export async function POST(request: Request) {
               label: "Participate",
               title: "Participate in Challenge",
               description: `Enter the challenge just in ${amount} sol and share the link with your friend with whom
-            you want to play the challenge. Here is the link to participate init: http://localhost:3000/api/participate?challengeId=${challengeId}&name=${name}&description=${description}&amount=${amount}`,
+            you want to play the challenge. Here is the link to participate init: 
+            http://localhost:3000/api/participate?challengeId=${challengeId}&name=${name}&description=${description}&amount=${amount}`,
             },
           },
         },

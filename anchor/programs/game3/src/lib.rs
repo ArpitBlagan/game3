@@ -1,7 +1,7 @@
 #![allow(clippy::result_large_err)]
 
 use anchor_lang::prelude::*;
-declare_id!("2fRVVSBJAMuk49GbzzAq2iNoASFS85KkUx48CVGjk32u");
+declare_id!("5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh");
 
 #[program]
 pub mod game3 {
@@ -15,7 +15,7 @@ pub mod game3 {
         challenge.name=name;
         challenge.descritpion=descritpion;
         challenge.entry_fee=entry_fee;
-        challenge.status="Yet to start";
+        challenge.status=Some("Yet to start".to_string());;
         global_state_account.challenge_id=challenge_id;
         global_state_account.challenge_key= Some(challenge.key());
         Ok(())
@@ -50,13 +50,13 @@ pub mod game3 {
       participant_account.wins=0;
       participant_account.losses=0;
         challenge.participant2 = Some(ctx.accounts.payer.key());
-        challenge.status="Started"
+        challenge.status=Some("Started".to_string());
     }
       //Logic here
       
       Ok(())
     }
-    pub fn updateParticipantInfo(ctx:Context<UpdateStats>,challenge_id:u32,,player_id:String,
+    pub fn updateParticipantInfo(ctx:Context<UpdateStats>,challenge_id:u32,player_id:String,
       user_name:String,typee:String)->Result<()>{
       //Logic here  
       let participant_account=&mut ctx.accounts.participant_account;
@@ -67,8 +67,8 @@ pub mod game3 {
       else if typee=="loss"{
         participant_account.losses+=1;
       }
-      else if typee="end"{
-        challenge.status="ended";
+      else if typee=="end"{
+        challenge_account.status=Some("Ended".to_string());;
       }
       else{
         return Err(ProgramError::InvalidArgument.into());
@@ -122,7 +122,7 @@ pub struct UpdateStats<'info>{
   #[account(mut)]
   pub payer:Signer<'info>,
   #[account(mut,seeds=[b"challenge".as_ref(),challenge_id.to_le_bytes().as_ref()],bump)]
-  put challenge_account=Account<'info,Challenge>,
+  pub challenge_account:Account<'info,Challenge>,
   #[account(
     mut,
     seeds=[b"participant".as_ref(),participant_id.to_le_bytes().as_ref(),payer.key.as_ref()],
@@ -151,7 +151,7 @@ pub struct CreateParticipant<'info>{
   #[
     account(
       mut,
-      seeds=[b"challenge".as_ref(),payer.key.as_ref(),challenge_id.to_le_bytes().as_ref()],
+      seeds=[b"challenge".as_ref(),challenge_id.to_le_bytes().as_ref()],
       bump
     )
   ]
@@ -216,7 +216,9 @@ pub struct Challenge {
   pub entry_fee:u32,
   pub start_at:Option<u32>,
   pub end_at:Option<u32>,
+  #[max_len(20)]
   pub winner:Option<String>,
+  #[max_len(10)]
   pub status:Option<String>,
   pub participant1: Option<Pubkey>,
   pub participant2: Option<Pubkey>,

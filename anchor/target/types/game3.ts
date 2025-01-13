@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/game3.json`.
  */
 export type Game3 = {
-  "address": "2fRVVSBJAMuk49GbzzAq2iNoASFS85KkUx48CVGjk32u",
+  "address": "5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -174,10 +174,6 @@ export type Game3 = {
                   103,
                   101
                 ]
-              },
-              {
-                "kind": "account",
-                "path": "payer"
               },
               {
                 "kind": "arg",
@@ -393,6 +389,32 @@ export type Game3 = {
           "signer": true
         },
         {
+          "name": "challengeAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  108,
+                  108,
+                  101,
+                  110,
+                  103,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "challengeId"
+              }
+            ]
+          }
+        },
+        {
           "name": "participantAccount",
           "writable": true,
           "pda": {
@@ -430,6 +452,10 @@ export type Game3 = {
         }
       ],
       "args": [
+        {
+          "name": "challengeId",
+          "type": "u32"
+        },
         {
           "name": "playerId",
           "type": "string"
@@ -525,6 +551,18 @@ export type Game3 = {
             "name": "endAt",
             "type": {
               "option": "u32"
+            }
+          },
+          {
+            "name": "winner",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "option": "string"
             }
           },
           {

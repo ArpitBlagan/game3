@@ -9,12 +9,24 @@ import {
 import {
   clusterApiUrl,
   Connection,
+  Keypair,
   PublicKey,
+  SystemProgram,
   Transaction,
 } from "@solana/web3.js";
 const IDL = require("../../../../anchor/target/idl/game3.json");
 import { Game3 } from "../../../../anchor/target/types/game3";
-export const OPTIONS = GET;
+
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*", // Or specific origin
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+    status: 204, // No content
+  });
+}
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const challengeId = url.searchParams.get("challengeId");
@@ -35,8 +47,8 @@ export async function GET(request: Request) {
   }
   const actionMedata: ActionGetResponse = {
     icon: "https://img.freepik.com/premium-photo/pubg-character-with-m416-cyberpunk-neon-light-4k-image_783182-35.jpg?semt=ais_hybrid",
-    title: name + "Just join in for " + amount + "sol",
-    description: description + "Challenge ID is" + challengeId,
+    title: name + "Just join in for " + amount + " sol",
+    description: description + "Challenge ID is " + challengeId,
     label: "Participate",
     error: Error("Something went wrong :("),
     links: {
@@ -56,7 +68,6 @@ export async function GET(request: Request) {
       ],
     },
   };
-  console.log("Hitting get request :)");
   return Response.json(actionMedata, {
     headers: ACTIONS_CORS_HEADERS,
     status: 200,
@@ -68,13 +79,14 @@ export async function POST(request: Request) {
   const name = url.searchParams.get("name");
   const accountId = Number(url.searchParams.get("accountId"));
   const challengeId = Number(url.searchParams.get("challengeId"));
-  if (!name || !accountId || !challengeId) {
+  const amount = Number(url.searchParams.get("amount"));
+  if (!name || isNaN(accountId) || isNaN(challengeId) || isNaN(amount)) {
     return Response.json(
       { message: "Please provide valid info like user name and account id :(" },
       { status: 403, headers: ACTIONS_CORS_HEADERS }
     );
   }
-  // First put create partcipant instruction
+  // First put create partcipant and participate in challenge with given challengeId instruction
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   const body: ActionPostRequest = await request.json();
   try {
@@ -90,19 +102,25 @@ export async function POST(request: Request) {
       .instruction();
 
     const blockhash = await connection.getLatestBlockhash();
-
+    const lamports = amount * 1e9;
+    const owner = new PublicKey("DHhk6gcPzzavCbq4YywZUjLfdBxgjbNFkPVgdad3BEqH");
+    const instruction2 = SystemProgram.transfer({
+      fromPubkey: user,
+      toPubkey: owner,
+      lamports,
+    });
     const transaction = new Transaction({
       feePayer: user,
       blockhash: blockhash.blockhash,
       lastValidBlockHeight: blockhash.lastValidBlockHeight,
     }).add(instruction);
-
+    transaction.add(instruction2);
     const response: ActionPostResponse = await createPostResponse({
       fields: {
         transaction: transaction,
         type: "transaction",
-        message:
-          "Participated in the challenge  successfully :). Now when both the participant have participated the challenge will start",
+        message: `Participated in the challenge successfully :). Now when both the participant 
+          have participated the challenge will start`,
       },
     });
     console.log(response);
