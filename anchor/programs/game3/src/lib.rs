@@ -15,7 +15,7 @@ pub mod game3 {
         challenge.name=name;
         challenge.descritpion=descritpion;
         challenge.entry_fee=entry_fee;
-        challenge.status=Some("Yet to start".to_string());;
+        challenge.status=Some("Yet to start.".to_string());;
         global_state_account.challenge_id=challenge_id;
         global_state_account.challenge_key= Some(challenge.key());
         Ok(())
@@ -50,29 +50,23 @@ pub mod game3 {
       participant_account.wins=0;
       participant_account.losses=0;
         challenge.participant2 = Some(ctx.accounts.payer.key());
-        challenge.status=Some("Started (In progress)".to_string());
+        challenge.status=Some("Started (In progress).".to_string());
         msg!("Challenge with id {} is ready for processing", challenge_id)
     }
       //Logic here
       
       Ok(())
     }
-    pub fn updateParticipantInfo(ctx:Context<UpdateStats>,challenge_id:u32,player_id:String,
-      user_name:String,typee:String)->Result<()>{
+    pub fn updateChallengeStatus(ctx:Context<UpdateStats>,challenge_id:u32,typee:String,proof,winner:Pubkey)->Result<()>{
       //Logic here  
-      let participant_account=&mut ctx.accounts.participant_account;
       let challenge_account=&mut ctx.accounts.challenge_account;
-      if typee=="win"{
-        participant_account.wins+=1;
-      }
-      else if typee=="loss"{
-        participant_account.losses+=1;
-      }
-      else if typee=="end"{
-        challenge_account.status=Some("Ended".to_string());;
+      //valid the proof
+      if true{
+      challenge_account.status=Some("Completed.".to_string());
+      challenge_account.winner=winner;
       }
       else{
-        return Err(ProgramError::InvalidArgument.into());
+        return Err(ErrorCode::InvalidProof.into()); 
       }
       Ok(())
     }
@@ -122,17 +116,15 @@ pub struct CreateChallenge<'info>{
 pub struct UpdateStats<'info>{
   #[account(mut)]
   pub payer:Signer<'info>,
-  #[account(mut,seeds=[b"challenge".as_ref(),challenge_id.to_le_bytes().as_ref()],bump)]
+  #[account(mut,seeds=[
+    b"challenge".as_ref(),
+  challenge_id.to_le_bytes().as_ref()],
+  bump,
+  realloc = 8 + Participant::INIT_SPACE,
+  realloc::payer = payer, 
+  realloc::zero = true, 
+)]
   pub challenge_account:Account<'info,Challenge>,
-  #[account(
-    mut,
-    seeds=[b"participant".as_ref(),challenge_id.to_le_bytes().as_ref(),payer.key.as_ref()],
-    bump,
-    realloc = 8 + Participant::INIT_SPACE,
-    realloc::payer = payer, 
-    realloc::zero = true, 
-  )]
-  pub participant_account:Account<'info,Participant>,
   pub system_program:Program<'info,System>
 }
 
@@ -223,6 +215,7 @@ pub struct Challenge {
   pub status:Option<String>,
   pub participant1: Option<Pubkey>,
   pub participant2: Option<Pubkey>,
+  pub winner: Option<Pubkey>
 }
 
 #[account]
@@ -231,8 +224,6 @@ pub struct Participant{
   pub owner: Pubkey,
   #[max_len(50)]
   pub user_name:String,
-  pub wins:u32,
-  pub losses:u32,
   pub player_id:u32,
 }
 
@@ -246,5 +237,7 @@ pub struct GlobalState{
 pub enum ErrorCode {
     #[msg("The challenge already has two participants.")]
     ParticipantLimitExceeded,
+    #[msg("Not able to verify the proof")]
+    InvalidProof
 }
 

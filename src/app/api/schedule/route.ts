@@ -3,8 +3,10 @@ import {
   clusterApiUrl,
   Connection,
   Keypair,
+  LAMPORTS_PER_SOL,
   PublicKey,
   sendAndConfirmTransaction,
+  SystemProgram,
   Transaction,
 } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -48,18 +50,42 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
       .status(400)
       .json({ message: "Scheduler already running for this challenge" });
   }
-
+  let matchCount = 0;
+  let participant1Wins = 0;
+  let participant2Wins = 0;
   // Create a new cron task for this challenge
   tasks[challengeId] = cron.schedule("*/5 * * * *", async () => {
     try {
       const response = await fetch(""); // Replace with the actual API URL
       const data = await response.json();
-      const currentValue = data.someValue;
 
-      console.log("Fetched data:", currentValue);
-      await triggerOnChainAction("", "", "", Number(challengeId));
+      if (matchCount == matches) {
+        //create a zkproof first
 
-      if (currentValue == matches) {
+        //Create two isntruction
+        const blockhash = await connection.getLatestBlockhash();
+        //Verify the zkproof and update the challenge status to completed and show the winner info.
+        const instruction = null;
+
+        //Send the money to the winners account (after reducting some fee).
+        const lamports = LAMPORTS_PER_SOL * 2;
+        const secretKeyString8 =
+          "2cqQ4Wvy8bx9h2GLLAboTdMWFUPQvcP7H5Kb7hP9BEtj7iAwVoNidPD5hMS7TSmq3t9iPRGPMadUYhqwWehDkd9Q";
+        const secretKey = bs58.decode(secretKeyString8);
+        const owner = Keypair.fromSecretKey(new Uint8Array(secretKey));
+        const instruction2 = SystemProgram.transfer({
+          fromPubkey: owner.publicKey,
+          toPubkey: participantInfo.owner,
+          lamports,
+        });
+        const transaction = new Transaction({
+          feePayer: owner.publicKey,
+          blockhash: blockhash.blockhash,
+          lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        }).add(instruction2);
+        //transaction.add(instruction);
+        //Send and confirm the tranaction
+        await sendAndConfirmTransaction(connection, transaction, [owner]);
         console.log("Target reached! Triggering on-chain action...");
         tasks[challengeId]?.stop();
         delete tasks[challengeId]; // Remove task after completion
