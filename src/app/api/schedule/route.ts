@@ -15,6 +15,7 @@ const IDL = require("../../../../anchor/target/idl/game3.json");
 import { Game3 } from "../../../../anchor/target/types/game3";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import * as snarkjs from "snarkjs";
+import axios from "axios";
 // Store tasks by challengeId to allow concurrent cron jobs
 let tasks: { [key: string]: cron.ScheduledTask } = {};
 
@@ -32,7 +33,7 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
   );
   const challengeInfo = await program.account.challenge.fetch(accountPubkey);
 
-  const [particpantPubKey] = await PublicKey.findProgramAddress(
+  const [particpant1PubKey] = await PublicKey.findProgramAddress(
     [
       Buffer.from("participant"),
       challengeId.to_le_bytes().as_ref(),
@@ -40,29 +41,57 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
     ],
     program.programId
   );
-  const participantInfo = await program.account.participant.fetch(
-    particpantPubKey
+  const [particpant2PubKey] = await PublicKey.findProgramAddress(
+    [
+      Buffer.from("participant"),
+      challengeId.to_le_bytes().as_ref(),
+      challengeInfo.participant2,
+    ],
+    program.programId
   );
-  console.log(participantInfo.playerId);
+  const participant1Info = await program.account.participant.fetch(
+    particpant1PubKey
+  );
+  const participant2Info = await program.account.participant.fetch(
+    particpant2PubKey
+  );
 
   if (tasks[challengeId]) {
     return res
       .status(400)
       .json({ message: "Scheduler already running for this challenge" });
   }
-  let matchCount = 0;
-  let participant1Wins = 0;
-  let participant2Wins = 0;
+
   // Create a new cron task for this challenge
   tasks[challengeId] = cron.schedule("*/5 * * * *", async () => {
     try {
-      const response = await fetch(""); // Replace with the actual API URL
-      const data = await response.json();
-
+      let matchCount = 0;
+      let participant1Wins = 0;
+      let participant2Wins = 0;
+      const url = `https://api.pubg.com/shards/steam/players/{participantPubkey.playerId}`;
+      const headers = {
+        accept: "application/vnd.api+json",
+        Authorization:
+          "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlNDFiZmJhMC1iMjRiLTAxM2QtOTFiYy03NmJmYTJlMWNhYjIiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNzM2NjAxMjU5LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6ImdhbWUzIn0.Rp_6ubzqzye5y6LPLzzFPBnMlrzRSvhWWt16_svylXI",
+      };
+      const res = await axios.get(url, { headers });
+      const tdmMatches = res.data.data.relationships.matches.data.map(
+        (match: any) => match.type == "tdm"
+      );
+      const playerNamesToCheck = [
+        participant1Info.userName,
+        participant2Info.userName,
+      ];
+      const resArr = tdmMatches.map((ele: any) => {
+        const res = await axios.get(
+          `https://api.pubg.com/shards/steam/matches/${ele.id}`,
+          { headers }
+        );
+      });
+      await Promise.all(resArr);
       if (matchCount == matches) {
-        //create a zkproof first
-
         const blockhash = await connection.getLatestBlockhash();
+        //create a zkproof first
         //Create two isntruction
         //Verify the zkproof and update the challenge status to completed and show the winner info.
         const gamingStats = { participant1Wins, participant2Wins };
@@ -85,7 +114,8 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
         const owner = Keypair.fromSecretKey(new Uint8Array(secretKey));
         const instruction2 = SystemProgram.transfer({
           fromPubkey: owner.publicKey,
-          toPubkey: participantInfo.owner,
+          //replace with winner public key
+          toPubkey: participant1Info.owner,
           lamports,
         });
         const transaction = new Transaction({

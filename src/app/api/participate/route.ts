@@ -16,6 +16,8 @@ import {
 } from "@solana/web3.js";
 const IDL = require("../../../../anchor/target/idl/game3.json");
 import { Game3 } from "../../../../anchor/target/types/game3";
+import { headers } from "next/headers";
+import axios from "axios";
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -81,6 +83,23 @@ export async function POST(request: Request) {
   const challengeId = Number(url.searchParams.get("challengeId"));
   const amount = Number(url.searchParams.get("amount"));
   if (!name || isNaN(accountId) || isNaN(challengeId) || isNaN(amount)) {
+    return Response.json(
+      { message: "Please provide valid info like user name and account id :(" },
+      { status: 403, headers: ACTIONS_CORS_HEADERS }
+    );
+  }
+  //First the name and accountId is a valid one or not
+  try {
+    const url = `https://api.pubg.com/shards/steam/players/${accountId}`;
+    const headers = {
+      accept: "application/vnd.api+json",
+      Authorization:
+        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlNDFiZmJhMC1iMjRiLTAxM2QtOTFiYy03NmJmYTJlMWNhYjIiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNzM2NjAxMjU5LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6ImdhbWUzIn0.Rp_6ubzqzye5y6LPLzzFPBnMlrzRSvhWWt16_svylXI",
+    };
+    await axios.get(url, { headers });
+    console.log("Player found :)");
+  } catch (err) {
+    console.log("Player with particular accountId not found", err);
     return Response.json(
       { message: "Please provide valid info like user name and account id :(" },
       { status: 403, headers: ACTIONS_CORS_HEADERS }
