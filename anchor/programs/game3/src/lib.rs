@@ -50,7 +50,8 @@ pub mod game3 {
       participant_account.wins=0;
       participant_account.losses=0;
         challenge.participant2 = Some(ctx.accounts.payer.key());
-        challenge.status=Some("Started".to_string());
+        challenge.status=Some("Started (In progress)".to_string());
+        msg!("Challenge with id {} is ready for processing", challenge_id)
     }
       //Logic here
       
@@ -117,7 +118,7 @@ pub struct CreateChallenge<'info>{
 }
 
 #[derive(Accounts)]
-#[instruction(participant_id:u32,challenge_id:u32)]
+#[instruction(challenge_id:u32)]
 pub struct UpdateStats<'info>{
   #[account(mut)]
   pub payer:Signer<'info>,
@@ -125,7 +126,7 @@ pub struct UpdateStats<'info>{
   pub challenge_account:Account<'info,Challenge>,
   #[account(
     mut,
-    seeds=[b"participant".as_ref(),participant_id.to_le_bytes().as_ref(),payer.key.as_ref()],
+    seeds=[b"participant".as_ref(),challenge_id.to_le_bytes().as_ref(),payer.key.as_ref()],
     bump,
     realloc = 8 + Participant::INIT_SPACE,
     realloc::payer = payer, 

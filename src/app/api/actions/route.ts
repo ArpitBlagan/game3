@@ -6,6 +6,7 @@ import {
   createPostResponse,
 } from "@solana/actions";
 import * as bs58 from "bs58";
+import { Worker } from "worker_threads";
 import {
   clusterApiUrl,
   Connection,
@@ -18,7 +19,7 @@ const IDL = require("../../../../anchor/target/idl/game3.json");
 export const OPTIONS = GET;
 import { Program } from "@coral-xyz/anchor";
 import { Game3 } from "../../../../anchor/target/types/game3";
-
+import cron from "node-cron";
 export async function GET(request: Request) {
   const actionMedata: ActionGetResponse = {
     icon: "https://img.freepik.com/premium-photo/pubg-character-with-m416-cyberpunk-neon-light-4k-image_783182-35.jpg?semt=ais_hybrid",
@@ -74,7 +75,8 @@ export async function POST(request: Request) {
   const name = url.searchParams.get("name");
   const description = url.searchParams.get("description");
   const amount = Number(url.searchParams.get("amount"));
-  if (!name || !description || !amount) {
+  const matches = Number(url.searchParams.get("matches"));
+  if (!name || !description || !amount || !matches) {
     return Response.json(
       {
         message:
@@ -182,9 +184,28 @@ export async function POST(request: Request) {
       },
     });
     console.log(response);
-    return Response.json(response, {
+    Response.json(response, {
       headers: ACTIONS_CORS_HEADERS,
       status: 200,
+    });
+    const worker = new Worker("./pollWorker.js"); // Path to the worker file
+
+    // Send the challengeId to the worker
+    worker.postMessage({ challengeId, matches });
+
+    // Set up listener to handle worker's response
+    worker.on("message", (result) => {
+      console.log("result", result);
+    });
+
+    // Handle any errors from the worker
+    worker.on("error", (error) => {
+      console.log(error);
+    });
+
+    // Close the worker once it finishes
+    worker.on("exit", (code) => {
+      console.log("worker exited with code ", code);
     });
   } catch (err) {
     console.log("error", err);

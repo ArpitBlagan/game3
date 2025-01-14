@@ -29,7 +29,7 @@ export async function OPTIONS() {
 }
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const challengeId = url.searchParams.get("challengeId");
+  const challengeId = Number(url.searchParams.get("challengeId"));
   const name = url.searchParams.get("name");
   const description = url.searchParams.get("description");
   const amount = Number(url.searchParams.get("amount"));
@@ -124,6 +124,7 @@ export async function POST(request: Request) {
       },
     });
     console.log(response);
+    //Listen upto when challenge have two participant.
     return Response.json(response, {
       headers: ACTIONS_CORS_HEADERS,
       status: 200,
