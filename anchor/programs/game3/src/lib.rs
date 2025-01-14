@@ -1,6 +1,6 @@
 #![allow(clippy::result_large_err)]
-
 use anchor_lang::prelude::*;
+use zk_snark::{generate_proof, verify_proof};
 declare_id!("5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh");
 
 #[program]
@@ -57,11 +57,12 @@ pub mod game3 {
       
       Ok(())
     }
-    pub fn updateChallengeStatus(ctx:Context<UpdateStats>,challenge_id:u32,typee:String,proof,winner:Pubkey)->Result<()>{
+    pub fn updateChallengeStatus(ctx:Context<UpdateStats>,challenge_id:u32,typee:String,proof:Vec<u8>,winner:Pubkey)->Result<()>{
       //Logic here  
       let challenge_account=&mut ctx.accounts.challenge_account;
       //valid the proof
-      if true{
+      let is_valid = verify_proof(proof)?;
+      if is_valid{
       challenge_account.status=Some("Completed.".to_string());
       challenge_account.winner=winner;
       }

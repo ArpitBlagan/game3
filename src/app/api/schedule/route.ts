@@ -14,7 +14,7 @@ import cron from "node-cron";
 const IDL = require("../../../../anchor/target/idl/game3.json");
 import { Game3 } from "../../../../anchor/target/types/game3";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
-
+import * as snarkjs from "snarkjs";
 // Store tasks by challengeId to allow concurrent cron jobs
 let tasks: { [key: string]: cron.ScheduledTask } = {};
 
@@ -62,10 +62,20 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
       if (matchCount == matches) {
         //create a zkproof first
 
-        //Create two isntruction
         const blockhash = await connection.getLatestBlockhash();
+        //Create two isntruction
         //Verify the zkproof and update the challenge status to completed and show the winner info.
-        const instruction = null;
+        const gamingStats = { participant1Wins, participant2Wins };
+
+        // Generate proof  using zk-SNARKs based on gaming stats
+        const { proof } = await snarkjs.groth16.fullProve(
+          gamingStats,
+          "circuit.wasm",
+          "circuit_final.zkey"
+        );
+        // const instruction = program.methods.updateChallengeStats(
+        //   challengeId,proof,participantInfo.owner
+        // ).accounts(owner.publicKey).instruction()
 
         //Send the money to the winners account (after reducting some fee).
         const lamports = LAMPORTS_PER_SOL * 2;
@@ -98,41 +108,4 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
   return res
     .status(200)
     .json({ message: "Scheduler started for challenge " + challengeId });
-}
-
-async function triggerOnChainAction(
-  type: string,
-  name: string,
-  playerId: string,
-  challengeId: any
-) {
-  console.log(type, name, playerId, challengeId);
-  const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-  const program: Program<Game3> = new Program(IDL, { connection });
-
-  const secretKeyString8 =
-    "2cqQ4Wvy8bx9h2GLLAboTdMWFUPQvcP7H5Kb7hP9BEtj7iAwVoNidPD5hMS7TSmq3t9iPRGPMadUYhqwWehDkd9Q";
-  const secretKey = bs58.decode(secretKeyString8);
-  const owner = Keypair.fromSecretKey(new Uint8Array(secretKey));
-
-  const instruction = await program.methods
-    .updateParticipantInfo(challengeId, playerId, name, type)
-    .accounts({
-      payer: owner.publicKey,
-    })
-    .instruction();
-
-  const blockhash = await connection.getLatestBlockhash();
-  const transaction = new Transaction({
-    feePayer: owner.publicKey,
-    blockhash: blockhash.blockhash,
-    lastValidBlockHeight: blockhash.lastValidBlockHeight,
-  }).add(instruction);
-
-  try {
-    await sendAndConfirmTransaction(connection, transaction, [owner]);
-    console.log("Transaction successful");
-  } catch (err) {
-    console.error("Error while sending and confirming the transaction:", err);
-  }
 }
