@@ -6,7 +6,7 @@ export const GET = async (
   response: NextApiResponse
 ) => {
   try {
-    const url = "https://api.pubg.com/shards/steam/seasons";
+    const url = "https://api.pubg.com/shards/kakao/seasons";
     const headers = {
       accept: "application/vnd.api+json",
       Authorization:

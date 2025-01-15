@@ -90,7 +90,7 @@ export async function POST(request: Request) {
   }
   //First the name and accountId is a valid one or not
   try {
-    const url = `https://api.pubg.com/shards/steam/players/${accountId}`;
+    const url = `https://api.pubg.com/shards/kakao/players/${accountId}`;
     const headers = {
       accept: "application/vnd.api+json",
       Authorization:

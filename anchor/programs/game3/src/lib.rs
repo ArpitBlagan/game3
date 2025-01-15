@@ -51,6 +51,7 @@ pub mod game3 {
       participant_account.losses=0;
         challenge.participant2 = Some(ctx.accounts.payer.key());
         challenge.status=Some("Started (In progress).".to_string());
+        challenge.startTime = Clock::get()?.unix_timestamp; 
         msg!("Challenge with id {} is ready for processing", challenge_id)
     }
       //Logic here
@@ -65,6 +66,8 @@ pub mod game3 {
       if is_valid{
       challenge_account.status=Some("Completed.".to_string());
       challenge_account.winner=winner;
+      challenge_account.endTime=Clock::get()?.unix_timestamp; 
+      msg!("Challenge completed successfully :).");
       }
       else{
         return Err(ErrorCode::InvalidProof.into()); 
@@ -208,15 +211,15 @@ pub struct Challenge {
   #[max_len(70)]
   pub descritpion:String,
   pub entry_fee:u32,
-  pub start_at:Option<u32>,
-  pub end_at:Option<u32>,
   #[max_len(20)]
   pub winner:Option<String>,
   #[max_len(10)]
   pub status:Option<String>,
   pub participant1: Option<Pubkey>,
   pub participant2: Option<Pubkey>,
-  pub winner: Option<Pubkey>
+  pub winner: Option<Pubkey>,
+  pub startTime: Option<i64>,
+  pub endTime:Option<i64>
 }
 
 #[account]

@@ -65,10 +65,9 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
   // Create a new cron task for this challenge
   tasks[challengeId] = cron.schedule("*/5 * * * *", async () => {
     try {
-      let matchCount = 0;
       let participant1Wins = 0;
       let participant2Wins = 0;
-      const url = `https://api.pubg.com/shards/steam/players/{participantPubkey.playerId}`;
+      const url = `https://api.pubg.com/shards/kakao/players/${participant1Info.playerId}`;
       const headers = {
         accept: "application/vnd.api+json",
         Authorization:
@@ -78,18 +77,17 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
       const tdmMatches = res.data.data.relationships.matches.data.map(
         (match: any) => match.type == "tdm"
       );
-      const playerNamesToCheck = [
-        participant1Info.userName,
-        participant2Info.userName,
+      const playerIdToCheck = [
+        participant1Info.playerId,
+        participant2Info.playerId,
       ];
-      const resArr = tdmMatches.map((ele: any) => {
-        const res = await axios.get(
-          `https://api.pubg.com/shards/steam/matches/${ele.id}`,
-          { headers }
-        );
-      });
-      await Promise.all(resArr);
-      if (matchCount == matches) {
+      const { matchCount, winner, wins } = await checkMatches(
+        tdmMatches,
+        matches,
+        playerIdToCheck,
+        challengeInfo.startAt
+      );
+      if (winner && matchCount == matches) {
         const blockhash = await connection.getLatestBlockhash();
         //create a zkproof first
         //Create two isntruction
@@ -138,4 +136,73 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
   return res
     .status(200)
     .json({ message: "Scheduler started for challenge " + challengeId });
+}
+
+function checkMatches(
+  tdmMatches: any[],
+  matches: any,
+  playerId: any,
+  challengeStartAt: any
+): { matchCount: any; winner: string | null; wins: any } {
+  let matchCount = 0;
+  let participant1 = 0;
+  let participant2 = 0;
+  tdmMatches.forEach(async (ele) => {
+    try {
+      const url = `https://api.pubg.com/shards/kakao/matches/${ele.id}`;
+      const headers = {
+        accept: "application/vnd.api+json",
+        Authorization:
+          "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlNDFiZmJhMC1iMjRiLTAxM2QtOTFiYy03NmJmYTJlMWNhYjIiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNzM2NjAxMjU5LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6ImdhbWUzIn0.Rp_6ubzqzye5y6LPLzzFPBnMlrzRSvhWWt16_svylXI",
+      };
+      const res = await axios.get(url, { headers });
+      const matchTimestamp = new Date(
+        res.data.data.attributes.createdAt
+      ).getTime();
+      const isCustom = res.data.data.attributes.isCustomMatch;
+      if (
+        matchCount < matches &&
+        isCustom &&
+        matchTimestamp >= challengeStartAt
+      ) {
+        let participants: any = [];
+        const rosters = res.data.data.relationships.rosters.data;
+        for (const roster of rosters) {
+          if (roster.relationships && roster.relationships.participants) {
+            const participantData = roster.relationships.participants.data;
+            participantData.forEach((p: any) => {
+              participants.push({
+                id: p.id,
+                winPlace: p.attributes.stats.winPlace, // Adjust this according to actual stats path
+              });
+            });
+          }
+        }
+        if (
+          participants.length == 2 &&
+          participants.some((p: any) => p.id === playerId[0]) &&
+          participants.some((p: any) => p.id === playerId[1])
+        ) {
+          const winner = participants.find((p: any) => p.winPlace === 1);
+          if (winner.id == playerId[0]) {
+            participant1++;
+            matchCount++;
+          } else if (winner.id == playerId[1]) {
+            participant2++;
+            matchCount++;
+          }
+        }
+      } else {
+        return {
+          matchCount,
+          wism: participant1 > participant2 ? playerId[0] : playerId[1],
+          wins: participant1 > participant2 ? participant1 : participant2,
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      return { matchCount: 0, winner: null, wins: 0 };
+    }
+  });
+  return { matchCount: 0, winner: null, wins: 0 };
 }

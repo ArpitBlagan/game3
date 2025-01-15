@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   const actionMedata: ActionGetResponse = {
     icon: "https://img.freepik.com/premium-photo/pubg-character-with-m416-cyberpunk-neon-light-4k-image_783182-35.jpg?semt=ais_hybrid",
     title:
-      "Challenge your friend for 1 vs 1 in tdm in Player Unkown Battel Ground (PUBG).",
+      "Challenge your friend for 1 vs 1 in tdm in Player Unkown Battel Ground (PUBG) mobile.",
     description: `Challenges are cool right but it becomes more intense when some money 
       gets involed right. Here is what we have to offer so lets say you want to challenge you friend you will create a 
       challenge set the no of matches, entry fee and other deatils. After creating a channle you paraticipate 
