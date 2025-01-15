@@ -6,6 +6,7 @@ import {
   ACTIONS_CORS_HEADERS,
   createPostResponse,
 } from "@solana/actions";
+import { Worker } from "node:worker_threads";
 import {
   clusterApiUrl,
   Connection,
@@ -16,8 +17,6 @@ import {
 } from "@solana/web3.js";
 const IDL = require("../../../../anchor/target/idl/game3.json");
 import { Game3 } from "../../../../anchor/target/types/game3";
-import { headers } from "next/headers";
-import axios from "axios";
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -35,7 +34,8 @@ export async function GET(request: Request) {
   const name = url.searchParams.get("name");
   const description = url.searchParams.get("description");
   const amount = Number(url.searchParams.get("amount"));
-  if (!name || !description || !amount) {
+  const matches = Number(url.searchParams.get("matches"));
+  if (!name || !description || !amount || !matches) {
     return Response.json(
       {
         message:
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
       actions: [
         {
           label: "Participate",
-          href: `http://localhost:3000/api/participate?name={name}&accountId={accountId}&challengeId=${challengeId}`,
+          href: `http://localhost:3000/api/participate?name={name}&accountId={accountId}&challengeId=${challengeId}&matches=${matches}`,
           type: "transaction",
           parameters: [
             {
@@ -82,6 +82,7 @@ export async function POST(request: Request) {
   const accountId = Number(url.searchParams.get("accountId"));
   const challengeId = Number(url.searchParams.get("challengeId"));
   const amount = Number(url.searchParams.get("amount"));
+  const matches = Number(url.searchParams.get("matches"));
   if (!name || isNaN(accountId) || isNaN(challengeId) || isNaN(amount)) {
     return Response.json(
       { message: "Please provide valid info like user name and account id :(" },
@@ -89,22 +90,22 @@ export async function POST(request: Request) {
     );
   }
   //First the name and accountId is a valid one or not
-  try {
-    const url = `https://api.pubg.com/shards/kakao/players/${accountId}`;
-    const headers = {
-      accept: "application/vnd.api+json",
-      Authorization:
-        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlNDFiZmJhMC1iMjRiLTAxM2QtOTFiYy03NmJmYTJlMWNhYjIiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNzM2NjAxMjU5LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6ImdhbWUzIn0.Rp_6ubzqzye5y6LPLzzFPBnMlrzRSvhWWt16_svylXI",
-    };
-    await axios.get(url, { headers });
-    console.log("Player found :)");
-  } catch (err) {
-    console.log("Player with particular accountId not found", err);
-    return Response.json(
-      { message: "Please provide valid info like user name and account id :(" },
-      { status: 403, headers: ACTIONS_CORS_HEADERS }
-    );
-  }
+  // try {
+  //   const url = `https://api.pubg.com/shards/kakao/players/${accountId}`;
+  //   const headers = {
+  //     accept: "application/vnd.api+json",
+  //     Authorization:
+  //       "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlNDFiZmJhMC1iMjRiLTAxM2QtOTFiYy03NmJmYTJlMWNhYjIiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNzM2NjAxMjU5LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6ImdhbWUzIn0.Rp_6ubzqzye5y6LPLzzFPBnMlrzRSvhWWt16_svylXI",
+  //   };
+  //   await axios.get(url, { headers });
+  //   console.log("Player found :)");
+  // } catch (err) {
+  //   console.log("Player with particular accountId not found", err);
+  //   return Response.json(
+  //     { message: "Please provide valid info like user name and account id :(" },
+  //     { status: 403, headers: ACTIONS_CORS_HEADERS }
+  //   );
+  // }
   // First put create partcipant and participate in challenge with given challengeId instruction
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   const body: ActionPostRequest = await request.json();
@@ -143,6 +144,10 @@ export async function POST(request: Request) {
       },
     });
     console.log(response);
+    const worker = new Worker("./src/pool.ts"); // Path to the worker file
+
+    // Send the challengeId and matches to the worker
+    worker.postMessage({ challengeId, matches });
     //Listen upto when challenge have two participant.
     return Response.json(response, {
       headers: ACTIONS_CORS_HEADERS,

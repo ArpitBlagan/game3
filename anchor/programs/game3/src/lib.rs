@@ -1,19 +1,19 @@
 #![allow(clippy::result_large_err)]
 use anchor_lang::prelude::*;
-use zk_snark::{generate_proof, verify_proof};
-declare_id!("5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh");
+// use zk_snark::{generate_proof, verify_proof};
+declare_id!("7uPucdTaGeBzfGokjxxU84XtP1c98aCeKqywZvsrr7Ms");
 
 #[program]
 pub mod game3 {
     use super::*;
-    pub fn createChallenge(ctx:Context<CreateChallenge>,challenge_id:u32,name:String, descritpion:String,
+    pub fn createChallenge(ctx:Context<CreateChallenge>,challenge_id:u32,name:String, description:String,
       entry_fee:u32)->Result<()>{
         //Logic here
         let challenge=& mut ctx.accounts.challenge_account;
         let global_state_account=& mut ctx.accounts.global_state;
         challenge.owner=ctx.accounts.payer.key();
         challenge.name=name;
-        challenge.descritpion=descritpion;
+        challenge.description=description;
         challenge.entry_fee=entry_fee;
         challenge.status=Some("Yet to start.".to_string());;
         global_state_account.challenge_id=challenge_id;
@@ -28,8 +28,6 @@ pub mod game3 {
         participant_account.owner = Pubkey::default();
         participant_account.user_name.clear();
         participant_account.player_id = 0;
-        participant_account.wins = 0;
-        participant_account.losses = 0;
         msg!("Participant data has been cleared.");
         return Err(ErrorCode::ParticipantLimitExceeded.into()); // Custom error code for exceeding participant limit
     }
@@ -40,38 +38,34 @@ pub mod game3 {
       participant_account.owner=ctx.accounts.payer.key();
       participant_account.user_name=user_name;
       participant_account.player_id=player_id;
-      participant_account.wins=0;
-      participant_account.losses=0;
         challenge.participant1 = Some(ctx.accounts.payer.key());
     } else if challenge.participant2.is_none() {
       participant_account.owner=ctx.accounts.payer.key();
       participant_account.user_name=user_name;
       participant_account.player_id=player_id;
-      participant_account.wins=0;
-      participant_account.losses=0;
         challenge.participant2 = Some(ctx.accounts.payer.key());
         challenge.status=Some("Started (In progress).".to_string());
-        challenge.startTime = Clock::get()?.unix_timestamp; 
+        challenge.startTime =Some( Clock::get()?.unix_timestamp); 
         msg!("Challenge with id {} is ready for processing", challenge_id)
     }
       //Logic here
       
       Ok(())
     }
-    pub fn updateChallengeStatus(ctx:Context<UpdateStats>,challenge_id:u32,typee:String,proof:Vec<u8>,winner:Pubkey)->Result<()>{
+    pub fn updateChallengeStatus(ctx:Context<UpdateStats>,challenge_id:u32,typee:String,winner:Pubkey)->Result<()>{
       //Logic here  
       let challenge_account=&mut ctx.accounts.challenge_account;
       //valid the proof
-      let is_valid = verify_proof(proof)?;
-      if is_valid{
+      // let is_valid = verify_proof(proof)?;
+      // if is_valid{
       challenge_account.status=Some("Completed.".to_string());
-      challenge_account.winner=winner;
-      challenge_account.endTime=Clock::get()?.unix_timestamp; 
+      challenge_account.winner=Some(winner);
+      challenge_account.endTime=Some(Clock::get()?.unix_timestamp); 
       msg!("Challenge completed successfully :).");
-      }
-      else{
-        return Err(ErrorCode::InvalidProof.into()); 
-      }
+      // }
+      // else{
+      //   return Err(ErrorCode::InvalidProof.into()); 
+      // }
       Ok(())
     }
     pub fn initializeChallengeState(ctx:Context<CreateGlobalState>)->Result<()>{
@@ -209,10 +203,9 @@ pub struct Challenge {
   #[max_len(32)]
   pub name: String,
   #[max_len(70)]
-  pub descritpion:String,
+  pub description:String,
   pub entry_fee:u32,
   #[max_len(20)]
-  pub winner:Option<String>,
   #[max_len(10)]
   pub status:Option<String>,
   pub participant1: Option<Pubkey>,

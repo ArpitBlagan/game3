@@ -1,5 +1,5 @@
 {
-  "address": "5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh",
+  "address": "7uPucdTaGeBzfGokjxxU84XtP1c98aCeKqywZvsrr7Ms",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -91,7 +91,7 @@
           "type": "string"
         },
         {
-          "name": "descritpion",
+          "name": "description",
           "type": "string"
         },
         {
@@ -365,16 +365,16 @@
       "args": []
     },
     {
-      "name": "updateParticipantInfo",
+      "name": "updateChallengeStatus",
       "discriminator": [
-        83,
-        149,
-        143,
-        185,
-        46,
-        238,
-        231,
-        251
+        56,
+        59,
+        82,
+        75,
+        79,
+        254,
+        198,
+        72
       ],
       "accounts": [
         {
@@ -409,38 +409,6 @@
           }
         },
         {
-          "name": "participant_account",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  97,
-                  114,
-                  116,
-                  105,
-                  99,
-                  105,
-                  112,
-                  97,
-                  110,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "participant_id"
-              },
-              {
-                "kind": "account",
-                "path": "payer"
-              }
-            ]
-          }
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -451,16 +419,12 @@
           "type": "u32"
         },
         {
-          "name": "player_id",
-          "type": "string"
-        },
-        {
-          "name": "user_name",
-          "type": "string"
-        },
-        {
           "name": "typee",
           "type": "string"
+        },
+        {
+          "name": "winner",
+          "type": "pubkey"
         }
       ]
     }
@@ -511,6 +475,11 @@
       "code": 6000,
       "name": "ParticipantLimitExceeded",
       "msg": "The challenge already has two participants."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidProof",
+      "msg": "Not able to verify the proof"
     }
   ],
   "types": [
@@ -528,30 +497,12 @@
             "type": "string"
           },
           {
-            "name": "descritpion",
+            "name": "description",
             "type": "string"
           },
           {
             "name": "entry_fee",
             "type": "u32"
-          },
-          {
-            "name": "start_at",
-            "type": {
-              "option": "u32"
-            }
-          },
-          {
-            "name": "end_at",
-            "type": {
-              "option": "u32"
-            }
-          },
-          {
-            "name": "winner",
-            "type": {
-              "option": "string"
-            }
           },
           {
             "name": "status",
@@ -569,6 +520,24 @@
             "name": "participant2",
             "type": {
               "option": "pubkey"
+            }
+          },
+          {
+            "name": "winner",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "startTime",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "endTime",
+            "type": {
+              "option": "i64"
             }
           }
         ]
@@ -604,14 +573,6 @@
           {
             "name": "user_name",
             "type": "string"
-          },
-          {
-            "name": "wins",
-            "type": "u32"
-          },
-          {
-            "name": "losses",
-            "type": "u32"
           },
           {
             "name": "player_id",

@@ -19,7 +19,7 @@ const IDL = require("../../../../anchor/target/idl/game3.json");
 export const OPTIONS = GET;
 import { Program } from "@coral-xyz/anchor";
 import { Game3 } from "../../../../anchor/target/types/game3";
-import cron from "node-cron";
+
 export async function GET(request: Request) {
   const actionMedata: ActionGetResponse = {
     icon: "https://img.freepik.com/premium-photo/pubg-character-with-m416-cyberpunk-neon-light-4k-image_783182-35.jpg?semt=ais_hybrid",
@@ -31,8 +31,8 @@ export async function GET(request: Request) {
       in it with your valid account ID and user name then send the same link of the blink for that challenge to your friend. After that we
       will check your next X number of TDM matches with each other and who wins more of them will win the challenge 
       and entry fee of other will send to the winner. 
-      We will start watching the matches result when the second participant particpate.
-      }.`,
+      We will start watching the matches result when the second participant particpated.
+      `,
     label: "Challenges",
     error: Error("Something went wrong :("),
     links: {
@@ -165,47 +165,16 @@ export async function POST(request: Request) {
       fields: {
         transaction: transaction,
         type: "transaction",
-        message:
-          "Transaction created successfully :). Now you and friend can participate.",
-        links: {
-          next: {
-            type: "inline",
-            action: {
-              type: "action",
-              icon: "https://img.freepik.com/premium-photo/pubg-character-with-m416-cyberpunk-neon-light-4k-image_783182-35.jpg?semt=ais_hybrid",
-              label: "Participate",
-              title: "Participate in Challenge",
-              description: `Enter the challenge just in ${amount} sol and share the link with your friend with whom
+        message: `Transaction created successfully :). Now you and friend can participate.
+          Enter the challenge just in ${amount} sol and share the link with your friend with whom
             you want to play the challenge. Here is the link to participate init: 
-            http://localhost:3000/api/participate?challengeId=${challengeId}&name=${name}&description=${description}&amount=${amount}`,
-            },
-          },
-        },
+            ${`http://localhost:3000/api/participate?challengeId=${challengeId}&name=${name}&description=${description}&amount=${amount}&matches=${matches}`}`,
       },
     });
     console.log(response);
-    Response.json(response, {
+    return Response.json(response, {
       headers: ACTIONS_CORS_HEADERS,
       status: 200,
-    });
-    const worker = new Worker("./pollWorker.js"); // Path to the worker file
-
-    // Send the challengeId to the worker
-    worker.postMessage({ challengeId, matches });
-
-    // Set up listener to handle worker's response
-    worker.on("message", (result) => {
-      console.log("result", result);
-    });
-
-    // Handle any errors from the worker
-    worker.on("error", (error) => {
-      console.log(error);
-    });
-
-    // Close the worker once it finishes
-    worker.on("exit", (code) => {
-      console.log("worker exited with code ", code);
     });
   } catch (err) {
     console.log("error", err);

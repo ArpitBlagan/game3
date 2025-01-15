@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/game3.json`.
  */
 export type Game3 = {
-  "address": "5KQsaWXPEuRHnNnyjaxywTVCx16RjbiykhP3T8vyz3Bh",
+  "address": "7uPucdTaGeBzfGokjxxU84XtP1c98aCeKqywZvsrr7Ms",
   "metadata": {
     "name": "game3",
     "version": "0.1.0",
@@ -97,7 +97,7 @@ export type Game3 = {
           "type": "string"
         },
         {
-          "name": "descritpion",
+          "name": "description",
           "type": "string"
         },
         {
@@ -371,16 +371,16 @@ export type Game3 = {
       "args": []
     },
     {
-      "name": "updateParticipantInfo",
+      "name": "updateChallengeStatus",
       "discriminator": [
-        83,
-        149,
-        143,
-        185,
-        46,
-        238,
-        231,
-        251
+        56,
+        59,
+        82,
+        75,
+        79,
+        254,
+        198,
+        72
       ],
       "accounts": [
         {
@@ -415,38 +415,6 @@ export type Game3 = {
           }
         },
         {
-          "name": "participantAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  97,
-                  114,
-                  116,
-                  105,
-                  99,
-                  105,
-                  112,
-                  97,
-                  110,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "participantId"
-              },
-              {
-                "kind": "account",
-                "path": "payer"
-              }
-            ]
-          }
-        },
-        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -457,16 +425,12 @@ export type Game3 = {
           "type": "u32"
         },
         {
-          "name": "playerId",
-          "type": "string"
-        },
-        {
-          "name": "userName",
-          "type": "string"
-        },
-        {
           "name": "typee",
           "type": "string"
+        },
+        {
+          "name": "winner",
+          "type": "pubkey"
         }
       ]
     }
@@ -517,6 +481,11 @@ export type Game3 = {
       "code": 6000,
       "name": "participantLimitExceeded",
       "msg": "The challenge already has two participants."
+    },
+    {
+      "code": 6001,
+      "name": "invalidProof",
+      "msg": "Not able to verify the proof"
     }
   ],
   "types": [
@@ -534,30 +503,12 @@ export type Game3 = {
             "type": "string"
           },
           {
-            "name": "descritpion",
+            "name": "description",
             "type": "string"
           },
           {
             "name": "entryFee",
             "type": "u32"
-          },
-          {
-            "name": "startAt",
-            "type": {
-              "option": "u32"
-            }
-          },
-          {
-            "name": "endAt",
-            "type": {
-              "option": "u32"
-            }
-          },
-          {
-            "name": "winner",
-            "type": {
-              "option": "string"
-            }
           },
           {
             "name": "status",
@@ -575,6 +526,24 @@ export type Game3 = {
             "name": "participant2",
             "type": {
               "option": "pubkey"
+            }
+          },
+          {
+            "name": "winner",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "startTime",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "endTime",
+            "type": {
+              "option": "i64"
             }
           }
         ]
@@ -610,14 +579,6 @@ export type Game3 = {
           {
             "name": "userName",
             "type": "string"
-          },
-          {
-            "name": "wins",
-            "type": "u32"
-          },
-          {
-            "name": "losses",
-            "type": "u32"
           },
           {
             "name": "playerId",
