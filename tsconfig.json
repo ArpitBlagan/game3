@@ -32,7 +32,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/workers/pool.js",
-    "src/app/workers/poolPubg.js"
+    "src/app/workers/poolPubg.ts"
   ],
   "exclude": ["node_modules"]
 }
