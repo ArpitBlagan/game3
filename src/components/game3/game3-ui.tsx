@@ -1,72 +1,102 @@
-'use client'
+"use client";
 
-import { Keypair, PublicKey } from '@solana/web3.js'
-import { useMemo } from 'react'
-import { ellipsify } from '../ui/ui-layout'
-import { ExplorerLink } from '../cluster/cluster-ui'
-import { useGame3Program, useGame3ProgramAccount } from './game3-data-access'
+import { Keypair, PublicKey } from "@solana/web3.js";
+import { useMemo } from "react";
+import { ellipsify } from "../ui/ui-layout";
+import { ExplorerLink } from "../cluster/cluster-ui";
+import { useGame3Program, useGame3ProgramAccount } from "./game3-data-access";
 
-export function Game3Create() {
-  const { initialize } = useGame3Program()
+// export function Game3Create() {
+//   const { createChallenge } = useGame3Program()
 
-  return (
-    <button
-      className="btn btn-xs lg:btn-md btn-primary"
-      onClick={() => initialize.mutateAsync(Keypair.generate())}
-      disabled={initialize.isPending}
-    >
-      Create {initialize.isPending && '...'}
-    </button>
-  )
-}
+//   return (
+//     <button
+//       className="btn btn-xs lg:btn-md btn-primary"
+//       onClick={() => initialize.mutateAsync(Keypair.generate())}
+//       disabled={initialize.isPending}
+//     >
+//       Create {initialize.isPending && '...'}
+//     </button>
+//   )
+// }
 
 export function Game3List() {
-  const { accounts, getProgramAccount } = useGame3Program()
+  const { accounts, getProgramAccount } = useGame3Program();
 
   if (getProgramAccount.isLoading) {
-    return <span className="loading loading-spinner loading-lg"></span>
+    return <span className="loading loading-spinner loading-lg"></span>;
   }
   if (!getProgramAccount.data?.value) {
     return (
       <div className="alert alert-info flex justify-center">
-        <span>Program account not found. Make sure you have deployed the program and are on the correct cluster.</span>
+        <span>
+          Program account not found. Make sure you have deployed the program and
+          are on the correct cluster.
+        </span>
       </div>
-    )
+    );
   }
   return (
-    <div className={'space-y-6'}>
+    <div className={"space-y-6"}>
       {accounts.isLoading ? (
         <span className="loading loading-spinner loading-lg"></span>
       ) : accounts.data?.length ? (
         <div className="grid md:grid-cols-2 gap-4">
           {accounts.data?.map((account) => (
-            <Game3Card key={account.publicKey.toString()} account={account.publicKey} />
+            <Game3Card
+              key={account.publicKey.toString()}
+              account={account.publicKey}
+            />
           ))}
         </div>
       ) : (
         <div className="text-center">
-          <h2 className={'text-2xl'}>No accounts</h2>
+          <h2 className={"text-2xl"}>No accounts</h2>
           No accounts found. Create one above to get started.
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function Game3Card({ account }: { account: PublicKey }) {
-  const { accountQuery, incrementMutation, setMutation, decrementMutation, closeMutation } = useGame3ProgramAccount({
+  const { accountQuery } = useGame3ProgramAccount({
     account,
-  })
+  });
 
-  const count = useMemo(() => accountQuery.data?.count ?? 0, [accountQuery.data?.count])
+  const accountInfo = useMemo(() => accountQuery.data, [accountQuery.data]);
 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
   ) : (
-    <div className="card card-bordered border-base-300 border-4 text-neutral-content">
+    <div className="card card-bordered border-base-300 border-4 text-neutral-content bg-gray-700">
       <div className="card-body items-center text-center">
         <div className="space-y-6">
-          <h2 className="card-title justify-center text-3xl cursor-pointer" onClick={() => accountQuery.refetch()}>
+          <h2 className="text-2xl font-semibold">{accountInfo?.name}</h2>
+          <p className="text-xl">{accountInfo?.description}</p>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              Entry Sol Fee:{" "}
+              <span className="text-green font-semibold">
+                {accountInfo?.entryFee}
+              </span>
+            </div>
+            <div>
+              Status:{" "}
+              <span className="text-red font-semibold">
+                {accountInfo?.status}
+              </span>
+            </div>
+          </div>
+          <p>
+            Winner:{" "}
+            <span className="font-semibold">
+              {accountInfo && accountInfo.winner
+                ? JSON.stringify(accountInfo.winner)
+                : "Not yet decided"}
+            </span>
+          </p>
+          {/* <h2 className="card-title justify-center text-3xl cursor-pointer" onClick={() => accountQuery.refetch()}>
             {count}
           </h2>
           <div className="card-actions justify-around">
@@ -97,12 +127,15 @@ function Game3Card({ account }: { account: PublicKey }) {
             >
               Decrement
             </button>
-          </div>
+          </div> */}
           <div className="text-center space-y-4">
             <p>
-              <ExplorerLink path={`account/${account}`} label={ellipsify(account.toString())} />
+              <ExplorerLink
+                path={`account/${account}`}
+                label={ellipsify(account.toString())}
+              />
             </p>
-            <button
+            {/* <button
               className="btn btn-xs btn-secondary btn-outline"
               onClick={() => {
                 if (!window.confirm('Are you sure you want to close this account?')) {
@@ -113,10 +146,10 @@ function Game3Card({ account }: { account: PublicKey }) {
               disabled={closeMutation.isPending}
             >
               Close
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
