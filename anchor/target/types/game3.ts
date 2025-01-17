@@ -16,14 +16,14 @@ export type Game3 = {
     {
       "name": "createChallenge",
       "discriminator": [
-        238,
-        243,
-        211,
-        163,
-        179,
-        4,
-        85,
-        64
+        170,
+        244,
+        47,
+        1,
+        1,
+        15,
+        173,
+        239
       ],
       "accounts": [
         {
@@ -109,14 +109,14 @@ export type Game3 = {
     {
       "name": "createParticipant",
       "discriminator": [
-        206,
-        214,
-        20,
-        200,
-        254,
-        25,
-        244,
-        152
+        172,
+        5,
+        38,
+        156,
+        234,
+        116,
+        224,
+        250
       ],
       "accounts": [
         {
@@ -267,14 +267,14 @@ export type Game3 = {
     {
       "name": "finishChallenge",
       "discriminator": [
-        94,
-        22,
-        255,
-        127,
-        158,
-        199,
-        125,
-        68
+        186,
+        112,
+        170,
+        196,
+        180,
+        123,
+        73,
+        112
       ],
       "accounts": [
         {
@@ -323,14 +323,14 @@ export type Game3 = {
     {
       "name": "initializeChallengeState",
       "discriminator": [
-        97,
-        70,
-        51,
-        142,
-        67,
-        4,
-        26,
-        239
+        147,
+        86,
+        205,
+        204,
+        48,
+        168,
+        194,
+        187
       ],
       "accounts": [
         {
@@ -373,14 +373,14 @@ export type Game3 = {
     {
       "name": "updateChallengeStatus",
       "discriminator": [
-        56,
-        59,
-        82,
-        75,
-        79,
-        254,
-        198,
-        72
+        193,
+        81,
+        19,
+        183,
+        19,
+        104,
+        28,
+        125
       ],
       "accounts": [
         {
@@ -425,8 +425,12 @@ export type Game3 = {
           "type": "u32"
         },
         {
-          "name": "typee",
-          "type": "string"
+          "name": "instructionData",
+          "type": {
+            "defined": {
+              "name": "groth16Proof"
+            }
+          }
         },
         {
           "name": "winner",
@@ -562,6 +566,60 @@ export type Game3 = {
             "name": "challengeKey",
             "type": {
               "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "groth16Proof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "proofA",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "proofB",
+            "type": {
+              "array": [
+                {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                2
+              ]
+            }
+          },
+          {
+            "name": "proofC",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "publicInputs",
+            "type": {
+              "array": [
+                {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                1
+              ]
             }
           }
         ]

@@ -8,16 +8,16 @@
   },
   "instructions": [
     {
-      "name": "createChallenge",
+      "name": "create_challenge",
       "discriminator": [
-        238,
-        243,
-        211,
-        163,
-        179,
-        4,
-        85,
-        64
+        170,
+        244,
+        47,
+        1,
+        1,
+        15,
+        173,
+        239
       ],
       "accounts": [
         {
@@ -101,16 +101,16 @@
       ]
     },
     {
-      "name": "createParticipant",
+      "name": "create_participant",
       "discriminator": [
-        206,
-        214,
-        20,
-        200,
-        254,
-        25,
-        244,
-        152
+        172,
+        5,
+        38,
+        156,
+        234,
+        116,
+        224,
+        250
       ],
       "accounts": [
         {
@@ -259,16 +259,16 @@
       ]
     },
     {
-      "name": "finishChallenge",
+      "name": "finish_challenge",
       "discriminator": [
-        94,
-        22,
-        255,
-        127,
-        158,
-        199,
-        125,
-        68
+        186,
+        112,
+        170,
+        196,
+        180,
+        123,
+        73,
+        112
       ],
       "accounts": [
         {
@@ -315,16 +315,16 @@
       ]
     },
     {
-      "name": "initializeChallengeState",
+      "name": "initialize_challenge_state",
       "discriminator": [
-        97,
-        70,
-        51,
-        142,
-        67,
-        4,
-        26,
-        239
+        147,
+        86,
+        205,
+        204,
+        48,
+        168,
+        194,
+        187
       ],
       "accounts": [
         {
@@ -365,16 +365,16 @@
       "args": []
     },
     {
-      "name": "updateChallengeStatus",
+      "name": "update_challenge_status",
       "discriminator": [
-        56,
-        59,
-        82,
-        75,
-        79,
-        254,
-        198,
-        72
+        193,
+        81,
+        19,
+        183,
+        19,
+        104,
+        28,
+        125
       ],
       "accounts": [
         {
@@ -419,8 +419,12 @@
           "type": "u32"
         },
         {
-          "name": "typee",
-          "type": "string"
+          "name": "instruction_data",
+          "type": {
+            "defined": {
+              "name": "Groth16Proof"
+            }
+          }
         },
         {
           "name": "winner",
@@ -556,6 +560,60 @@
             "name": "challenge_key",
             "type": {
               "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Groth16Proof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "proof_a",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "proof_b",
+            "type": {
+              "array": [
+                {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                2
+              ]
+            }
+          },
+          {
+            "name": "proof_c",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "public_inputs",
+            "type": {
+              "array": [
+                {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                1
+              ]
             }
           }
         ]
