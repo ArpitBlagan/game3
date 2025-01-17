@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 use groth16_solana::groth16::{Groth16Verifyingkey, Groth16Verifier};
 use borsh::{BorshDeserialize, BorshSerialize};
 
-declare_id!("7uPucdTaGeBzfGokjxxU84XtP1c98aCeKqywZvsrr7Ms");
+declare_id!("C5uvm3Vx21r3Joom7h4bRtHBmfPbpbHW1fxnnTa1Wupj");
 const NR_PUBLIC_INPUTS: usize = 1; 
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]

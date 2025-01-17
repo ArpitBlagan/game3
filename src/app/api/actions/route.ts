@@ -6,7 +6,6 @@ import {
   createPostResponse,
 } from "@solana/actions";
 import * as bs58 from "bs58";
-import { Worker } from "worker_threads";
 import {
   clusterApiUrl,
   Connection,
@@ -129,7 +128,7 @@ export async function POST(request: Request) {
       //intitialize the account
       console.log("Global state account not found lets create new one.");
       const instruction = await program.methods
-        .initializeChallengeState()
+        .initialize_challenge_state()
         .accounts({ payer: owner.publicKey })
         .instruction();
       const blockhash = await connection.getLatestBlockhash();
@@ -147,7 +146,7 @@ export async function POST(request: Request) {
       }
     }
     const instruction = await program.methods
-      .createChallenge(challengeId, name, description, amount)
+      .create_challenge(challengeId, name, description, amount)
       .accounts({
         payer: user,
       })

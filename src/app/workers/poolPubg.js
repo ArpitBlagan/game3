@@ -157,7 +157,7 @@ const startCronJob = async () => {
           const secretKey = base58.decode(secretKeyString8);
           const owner = Keypair.fromSecretKey(new Uint8Array(secretKey));
           const instruction = program.methods
-            .updateChallengeStats(
+            .update_challenge_status(
               challengeId,
               serializedData,
               participant1Info.owner

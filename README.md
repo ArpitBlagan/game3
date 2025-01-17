@@ -1,5 +1,20 @@
 # game3
 
+This is all about P2P in-game wagering with sol speciall for PUBG mobile users 🔫.
+Where user can challenge their friend or rivaly for 1 vs 1 TDM matches with some entry fee in sol and who ever
+wins the most matches win the challenge and reward with other participant entry fee.
+
+### Stack user
+
+-Anchor for writing solana program and deployed it on devent.
+-Next js for writing the api's using worker-thread to delegate the task and node-cron to schedule the task.
+-ZK-Snark for privacy and securit and groth16-solana ligth protocol ti verify the proof on-chain.
+-Intergration with PUBG mobile api to get user's stats info by pooling their server.
+
+### Overview video where I kind of explain the implementation and give a demo.
+
+-
+
 ## Getting Started
 
 ### Prerequisites

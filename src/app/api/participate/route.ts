@@ -115,7 +115,7 @@ export async function POST(request: Request) {
     const program: Program<Game3> = new Program(IDL, { connection });
 
     const instruction = await program.methods
-      .createParticipant(challengeId, name, accountId)
+      .create_participant(challengeId, name, accountId)
       .accounts({
         payer: user,
       })
